@@ -6,6 +6,7 @@ import styled from '@emotion/styled'
 import { Box, Badge, Avatar, Button, IconButton } from '@mui/material'
 import { FormControl, FormHelperText, Input, InputLabel, InputAdornment, TextField } from '@mui/material'
 import { MenuItem, Select } from '@mui/material'
+import { Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
@@ -59,8 +60,40 @@ const SmallAvatar = styled(Avatar)(({ theme }) => ({
 */
 
 const ProfileForm = props => {
-  const { control, errors, userPhoto, name, email, phone, ImageOnChange, handleEditName, handleProfileImageDelete } =
-    props
+  const {
+    handleSubmit,
+    control,
+    errors,
+    userPhoto,
+    name,
+    email,
+    ImageOnChange,
+    handleEditName,
+    handleProfileImageDelete,
+    open,
+    handleClickOpen,
+    handleClose,
+    onSubmit
+  } = props
+
+  const [username, setUsername] = useState()
+  const [formValues, setFormValues] = useState({
+    email: email,
+    username: name,
+    nickName: '',
+    country: '',
+    area: '',
+    date: '',
+    phone: ''
+  })
+  const handleTextFieldChange = event => {
+    alert(event.target.name + ' ' + event.target.value)
+    const { name, value } = event.target
+    setFormValues({
+      ...formValues,
+      [name]: value
+    })
+  }
 
   const renderUserAvatar = () => {
     if (userPhoto) {
@@ -102,7 +135,6 @@ const ProfileForm = props => {
 
   return (
     <div>
-      <input type='file' accept='image/png, image/jpeg' />
       <p className='text-2xl'>
         <span className='font-bold'>{name}</span> 프로필 관리
       </p>
@@ -114,55 +146,62 @@ const ProfileForm = props => {
       </div>
 
       {/* 프로필 이미지 */}
+
       <Box>
         <p>프로필 이미지</p>
         <Box sx={{ my: 5, textAlign: 'center' }}>
           {renderUserAvatar()}
           <p className='mt-5'>최대 크기 800K이하의 .png .jpg .jpeg 파일만 업로드 가능합니다.</p>
-          <Button color='error' variant='outlined' onClick={handleProfileImageDelete} sx={{ fontSize: 16, mt: 5 }}>
+          <Button color='error' variant='outlined' onClick={handleClickOpen} sx={{ fontSize: 16, mt: 5 }}>
             이미지 삭제
           </Button>
         </Box>
       </Box>
-      <Form className='w-full'>
+      <Form className='w-full' onSubmit={handleSubmit(handleEditName)}>
         <FlexBox>
           {/* 이름 */}
           <FormControl error sx={{ width: '100%', my: 2 }}>
-            <Controller
+            {/* <Controller
               name='name'
               control={control}
               rules={{ required: true }}
-              render={({ field }) => (
-                <TextField
-                  required
-                  label='이름'
-                  variant='standard'
-                  placeholder='이름을 입력해 주세요'
-                  defaultValue={name}
-                  {...field}
-                  error={Boolean(errors.username)}
-                />
-              )}
+              render={({ field, onChange }) => ( */}
+            <TextField
+              name='name'
+              required
+              label='이름'
+              variant='standard'
+              placeholder='이름을 입력해 주세요'
+              defaultValue={name}
+              onChange={e => handleTextFieldChange(e)}
+              // onChange={e => setUsername(e.target.value)}
+              // onChange={e => alert(e.target.value)}
+              // {...field}
+              error={Boolean(errors.username)}
             />
+            {/* )} */}
+            {/* /> */}
             {errors.username && <FormHelperText sx={{ color: 'error.main' }}>{errors.username}</FormHelperText>}
           </FormControl>
 
           {/* 별명 */}
           <FormControl sx={{ width: '100%', my: 2 }}>
-            <Controller
+            {/* <Controller
               name='nickName'
               control={control}
               rules={{ required: true }}
-              render={({ field }) => (
-                <TextField
-                  label='별명'
-                  variant='standard'
-                  placeholder='별명을 입력해 주세요'
-                  {...field}
-                  error={Boolean(errors.myId)}
-                />
-              )}
+              render={({ field, onChange }) => ( */}
+            <TextField
+              name='nickName'
+              label='별명'
+              variant='standard'
+              placeholder='별명을 입력해 주세요'
+              onChange={handleTextFieldChange}
+              // {...field}
+              error={Boolean(errors.myId)}
             />
+            {/* )}
+            /> */}
             {errors.nickName && <FormHelperText sx={{ color: 'error.main' }}>{errors.nickName.message}</FormHelperText>}
           </FormControl>
         </FlexBox>
@@ -242,10 +281,11 @@ const ProfileForm = props => {
               name='phone'
               control={control}
               rules={{ required: true }}
-              render={({ field }) => (
+              render={({ field, onChange }) => (
                 <TextField
                   label='전화번호'
                   variant='standard'
+                  onChange={handleTextFieldChange}
                   placeholder='전화번호를 입력해 주세요'
                   {...field}
                   error={Boolean(errors.phone)}
@@ -255,13 +295,32 @@ const ProfileForm = props => {
             {errors.phone && <FormHelperText sx={{ color: 'error.main' }}>{errors.phone.message}</FormHelperText>}
           </FormControl>
         </FlexBox>
-        {/* 회원가입 버튼 */}
+        {/* 수정완료 버튼 */}
         <div className='w-full flex flex-col items-center justify-center'>
-          <Button variant='contained' type='submit' onClick={handleEditName} sx={{ width: '200px', fontSize: '18px' }}>
-            수정
+          <Button
+            variant='contained'
+            // type='submit'
+            onClick={() => handleEditName(formValues)}
+            // onClick={() => alert(username)}
+            sx={{ width: '200px', fontSize: '18px', mt: 5 }}
+          >
+            수정 완료
           </Button>
         </div>
       </Form>
+      {/* 이미지 삭제 다이얼로그 */}
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>프로필 이미지 삭제</DialogTitle>
+        <DialogContent>프로필 이미지를 삭제하시겠습니까?</DialogContent>
+        <DialogActions>
+          <Button color='error' variant='contained' onClick={handleProfileImageDelete}>
+            삭제
+          </Button>
+          <Button color='lightGray' variant='contained' onClick={handleClose}>
+            취소
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   )
 }

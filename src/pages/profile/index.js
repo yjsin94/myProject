@@ -80,6 +80,7 @@ const MainPgae = observer(() => {
   const [loginOpen, setLoginOpen] = useState(false)
   const [userPhoto, setUserPhoto] = useState()
   const [username, setUsername] = useState()
+  const [open, setOpen] = useState(false)
 
   /* hook */
   const createdAtDate = new Date()
@@ -158,24 +159,84 @@ const MainPgae = observer(() => {
     }
   }
 
-  const handleEditName = () => {
+  const onSubmit = data => {
+    const { username } = data
+
+    alert(username)
+
+    /* 여기서 login check */
+    signInWithEmailAndPassword(auth, email, password)
+      .then(userCredential => {
+        // Signed in
+        const user = userCredential.user
+
+        /* 이메일 인증 체크 */
+        if (!user.emailVerified) {
+          const text = '이메일 인증이 필요합니다'
+          BasicAlert(text)
+
+          return
+        } else {
+          /* 이름 데이터 가져오기 */
+          const getData = async () => {
+            try {
+              const q = query(collection(firestore, 'users'), where('uid', '==', user.uid))
+              const querySnapshot = await getDocs(q)
+
+              querySnapshot.forEach(doc => {
+                const name = doc.data().name
+
+                /* localStorage 저장 */
+                AuthLogin(user.email, user.uid, name)
+
+                /* mobx 저장 */
+                MobxLoginFunction(mobxSetting, user.email, user.uid, name)
+              })
+            } catch (error) {
+              console.log('error : ', error)
+            }
+          }
+
+          getData()
+
+          router.push('/')
+        }
+      })
+      .catch(error => {
+        // const errorCode = error.code
+        const errorMessage = error.message
+
+        let errorType = 'email'
+        if (errorMessage.search('password') > 0) {
+          errorType = 'password'
+        }
+
+        setError(errorType, {
+          type: 'manual',
+          message: errorMessage
+        })
+      })
+  }
+
+  const handleEditName = async formValues => {
     /**
      * 1. document 변경
      * 2. mobx 변경
      * 3. token 변경
      */
-
+    alert(JSON.stringify(formValues))
     // 1
     const userPath = `users/${email}`
     const values = { name: username }
     const docRef = doc(db, userPath)
-    setDoc(docRef, values, { merge: true })
+    await setDoc(docRef, values, { merge: true })
 
     // 2
-    MobxProfileEditFunction(mobxSetting, username)
+    // MobxProfileEditFunction(mobxSetting, username)
+    mobxSetting.name = username
 
     // 3
-    AuthNameChange(email, uid, username)
+    // AuthNameChange(email, uid, username)
 
     toast.info('수정이 완료되었습니다!')
   }
@@ -189,6 +250,20 @@ const MainPgae = observer(() => {
 
     mobxSetting.infoChange = !mobxSetting.infoChange
     setUserPhoto()
+
+    setOpen(false)
+  }
+
+  /* 유저 정보 가져오기 */
+
+  /* 모달창 열기 */
+  const handleClickOpen = () => {
+    setOpen(true)
+  }
+
+  /* 모달창 닫기 */
+  const handleClose = () => {
+    setOpen(false)
   }
 
   /* 유효성 검사 */
@@ -214,9 +289,9 @@ const MainPgae = observer(() => {
   return (
     <PageLayout>
       <p className='text-3xl py-5 font-bold '>프로필</p>
-
       <ProfileLayout>
         <ProfileForm
+          handleSubmit={handleSubmit}
           control={control}
           errors={errors}
           userPhoto={userPhoto}
@@ -225,6 +300,10 @@ const MainPgae = observer(() => {
           ImageOnChange={ImageOnChange}
           handleProfileImageDelete={handleProfileImageDelete}
           handleEditName={handleEditName}
+          open={open}
+          handleClickOpen={handleClickOpen}
+          handleClose={handleClose}
+          onSubmit={onSubmit}
         />
       </ProfileLayout>
 
