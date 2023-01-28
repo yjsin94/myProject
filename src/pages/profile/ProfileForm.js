@@ -66,6 +66,7 @@ const ProfileForm = props => {
     errors,
     userPhoto,
     name,
+    nickName,
     email,
     ImageOnChange,
     handleEditName,
@@ -76,18 +77,20 @@ const ProfileForm = props => {
     onSubmit
   } = props
 
-  const [username, setUsername] = useState()
+  // const [name, setName] = useState()
   const [formValues, setFormValues] = useState({
     email: email,
-    username: name,
-    nickName: '',
+    name: name,
+    nickName: nickName,
     country: '',
     area: '',
     date: '',
     phone: ''
   })
+
   const handleTextFieldChange = event => {
-    alert(event.target.name + ' ' + event.target.value)
+    console.log(event.target.name + ' ' + event.target.value)
+
     const { name, value } = event.target
     setFormValues({
       ...formValues,
@@ -157,51 +160,48 @@ const ProfileForm = props => {
           </Button>
         </Box>
       </Box>
-      <Form className='w-full' onSubmit={handleSubmit(handleEditName)}>
+      <Form className='w-full'>
         <FlexBox>
           {/* 이름 */}
           <FormControl error sx={{ width: '100%', my: 2 }}>
-            {/* <Controller
+            <Controller
               name='name'
               control={control}
               rules={{ required: true }}
-              render={({ field, onChange }) => ( */}
-            <TextField
-              name='name'
-              required
-              label='이름'
-              variant='standard'
-              placeholder='이름을 입력해 주세요'
-              defaultValue={name}
-              onChange={e => handleTextFieldChange(e)}
-              // onChange={e => setUsername(e.target.value)}
-              // onChange={e => alert(e.target.value)}
-              // {...field}
-              error={Boolean(errors.username)}
+              render={({ field, onBlur, onChange }) => (
+                <TextField
+                  name='name'
+                  required
+                  label='이름'
+                  placeholder='이름을 입력해 주세요'
+                  defaultValue={name}
+                  onChange={handleTextFieldChange}
+                  onBlur={onBlur}
+                  error={Boolean(errors.name)}
+                />
+              )}
             />
-            {/* )} */}
-            {/* /> */}
             {errors.username && <FormHelperText sx={{ color: 'error.main' }}>{errors.username}</FormHelperText>}
           </FormControl>
 
           {/* 별명 */}
           <FormControl sx={{ width: '100%', my: 2 }}>
-            {/* <Controller
+            <Controller
               name='nickName'
               control={control}
               rules={{ required: true }}
-              render={({ field, onChange }) => ( */}
-            <TextField
-              name='nickName'
-              label='별명'
-              variant='standard'
-              placeholder='별명을 입력해 주세요'
-              onChange={handleTextFieldChange}
-              // {...field}
-              error={Boolean(errors.myId)}
+              render={({ field, onBlur, onChange }) => (
+                <TextField
+                  name='nickName'
+                  label='별명'
+                  placeholder='별명을 입력해 주세요'
+                  defaultValue={nickName}
+                  onChange={handleTextFieldChange}
+                  onBlur={onBlur}
+                  error={Boolean(errors.nickName)}
+                />
+              )}
             />
-            {/* )}
-            /> */}
             {errors.nickName && <FormHelperText sx={{ color: 'error.main' }}>{errors.nickName.message}</FormHelperText>}
           </FormControl>
         </FlexBox>
@@ -215,7 +215,12 @@ const ProfileForm = props => {
               control={control}
               rules={{ required: true }}
               render={({ field }) => (
-                <Select label='국가' {...field} error={Boolean(errors.country)}>
+                <Select
+                  name='country'
+                  label='국가'
+                  onChange={handleTextFieldChange}
+                  error={Boolean(errors.country)}
+                >
                   <MenuItem value={'한국'}>한국</MenuItem>
                   <MenuItem value={'국가1'}>국가1</MenuItem>
                 </Select>
@@ -233,7 +238,12 @@ const ProfileForm = props => {
               control={control}
               rules={{ required: true }}
               render={({ field }) => (
-                <Select label='지역' {...field} error={Boolean(errors.area)}>
+                <Select
+                  name='area'
+                  label='지역'
+                  onChange={handleTextFieldChange}
+                  error={Boolean(errors.area)}
+                >
                   <MenuItem value={'지역1'}>지역1</MenuItem>
                   <MenuItem value={'지역2'}>지역2</MenuItem>
                 </Select>
@@ -256,13 +266,14 @@ const ProfileForm = props => {
                     label='생년월일'
                     inputFormat='YYYY. MM. DD'
                     value={value}
-                    onChange={onChange}
+                    onChange={handleTextFieldChange}
                     renderInput={params => (
                       <TextField
+                        name='date'
                         variant='standard'
                         {...params}
                         value={value}
-                        onChange={onChange}
+                        onChange={handleTextFieldChange}
                         error={Boolean(errors.area)}
                       />
                     )}
@@ -281,13 +292,14 @@ const ProfileForm = props => {
               name='phone'
               control={control}
               rules={{ required: true }}
-              render={({ field, onChange }) => (
+              render={({ field, onBlur }) => (
                 <TextField
+                  name='phone'
                   label='전화번호'
                   variant='standard'
                   onChange={handleTextFieldChange}
+                  onBlur={onBlur}
                   placeholder='전화번호를 입력해 주세요'
-                  {...field}
                   error={Boolean(errors.phone)}
                 />
               )}
@@ -300,7 +312,10 @@ const ProfileForm = props => {
           <Button
             variant='contained'
             // type='submit'
-            onClick={() => handleEditName(formValues)}
+            onClick={() => {
+              console.log(formValues)
+              handleEditName(formValues)
+            }}
             // onClick={() => alert(username)}
             sx={{ width: '200px', fontSize: '18px', mt: 5 }}
           >
