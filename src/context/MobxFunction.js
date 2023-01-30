@@ -5,7 +5,6 @@ export const MobxLoginFunction = (mobxSetting, email, uid, name) => {
   mobxSetting.login = true
   mobxSetting.uid = uid
   mobxSetting.name = name
-  mobxSetting.nickName = nickName
 }
 
 export const MobxLogoutFunction = mobxSetting => {
@@ -13,7 +12,6 @@ export const MobxLogoutFunction = mobxSetting => {
   mobxSetting.login = false
   mobxSetting.uid = ''
   mobxSetting.name = ''
-  mobxSetting.nickName = ''
 }
 
 export const MobxProfileEditFunction = (mobxSetting, name) => {
