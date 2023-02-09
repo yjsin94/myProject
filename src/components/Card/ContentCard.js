@@ -117,7 +117,7 @@ const InputBox = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.card.inBox
 }))
 
-const ContentCard = observer(({ data, onClick, card, settings }) => {
+const ContentCard = observer(({ data, onClick, card }) => {
   const [swiperDoc, setSwiperDoc] = useState([])
   const [userPhoto, setUserPhoto] = useState()
 
@@ -126,7 +126,7 @@ const ContentCard = observer(({ data, onClick, card, settings }) => {
 
   /* mobx 상태값 가져오기 */
   const mobxSetting = useMobxSettings()
-  const { email, infoChange } = mobxSetting
+  const { email, uid, name, infoChange } = mobxSetting
 
   /* 프로필 이미지 가져오기 */
   useEffect(() => {
@@ -199,7 +199,7 @@ const ContentCard = observer(({ data, onClick, card, settings }) => {
           {/* 프로필 이미지 */}
           {renderUserAvatar()}
         </Box>
-        <p>{data.name}</p>
+        <p>{name}</p>
         <IconButton variant='plain' color='neutral' size='sm' sx={{ ml: 'auto' }}>
           <MoreHoriz />
         </IconButton>
@@ -265,7 +265,7 @@ const ContentCard = observer(({ data, onClick, card, settings }) => {
         {/* 사용자 , 글 타이틀 */}
         <div className='flex'>
           <Link href='/'>
-            <span className='Link_text mr-2'>{data.name}</span>
+            <span className='Link_text mr-2'>{name}</span>
           </Link>
           <span>{data.titleText}</span>
         </div>

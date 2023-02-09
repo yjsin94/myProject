@@ -191,14 +191,12 @@ const MyMenuNav = observer(({ settings }) => {
         </MenuItem>
         <Divider />
         <Link href='/profile'>
-          <a>
-            <MenuItem>
-              <ListItemIcon>
-                <InsertEmoticonOutlinedIcon fontSize='small' />
-              </ListItemIcon>
-              계정 설정
-            </MenuItem>
-          </a>
+          <MenuItem>
+            <ListItemIcon>
+              <InsertEmoticonOutlinedIcon fontSize='small' />
+            </ListItemIcon>
+            계정 설정
+          </MenuItem>
         </Link>
         <MenuItem>
           <ListItemIcon>
